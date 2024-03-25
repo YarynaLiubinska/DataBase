@@ -1,0 +1,63 @@
+--create database Hospital
+use Hospital
+
+create table Diseases(id int primary key identity(1,1), name varchar(25))
+create table ContraindicationMedicines(idMedicines int not null, idContraindication int not null)
+alter table ContraindicationMedicines add constraint PK_ContraindicationMedicines primary key(idMedicines,idContraindication)
+
+create table MedicalHistory(idPatient int not null, idDoctor int not null, idDisease int not null, StartDate date not null, EndDate date not null, Diagnosis varchar(100))
+alter table MedicalHistory add constraint PK_MedicalHistory primary key (idPatient, idDoctor, idDisease, StartDate)
+
+create table Doctors(id int primary key identity(1,1), LastName varchar(25), Address varchar(255))
+
+create table ContraindicationPatients( idPatient int not null, idContraindication int not null)
+-- identity(1,1), Name varchar(100))
+
+create table Patients ( id int primary key identity(1,1), LastName varchar(100), FirstName varchar(100), MiddleName varchar(100), Address varchar(255), Characteristics varchar(500))
+
+create table Medicines (id int primary key identity(1,1), MedicineName varchar(100), idRoot int)
+
+
+
+create table PrescribedMedicine(idPatient int not null, idDoctor int not null, idMedicine int not null, PrescriptionDate date not null)
+alter table PrescribedMedicine add constraint PK_PrescribedMedicine primary key( idPatient, idDoctor, idMedicine,PrescriptionDate)
+
+
+alter table MedicalHistory add constraint FK_MedicalHistoryDiseases foreign key(idDisease) references Diseases(id)
+
+alter table MedicalHistory add constraint FK_MedicalHistoryDoctors foreign key(idDoctor) references Doctors(id)
+ 
+alter table MedicalHistory add constraint FK_MedicalHistoryPatients foreign key(idPatient) references Patients(id)
+
+alter table ContraindicationPatients add constraint FK_ContraindicationPatientsPatients foreign key(idPatient) references Patients(id)
+
+alter table ContraindicationPatients add constraint FK_ContraindicationPatientsContraindication foreign key(idContraindication) references Contraindication(id)
+alter table ContraindicationMedicines add constraint FK_ContraindicationMedicinesContraindication foreign key(idContraindication) references Contraindication(id)
+alter table ContraindicationMedicines add constraint FK_ContraindicationMedicinesMedicines foreign key(idMedicines) references Medicines(id)
+alter table PrescribedMedicine add constraint FK_PrescibedMedicinesMedicines foreign key(idMedicine) references Medicines(id)
+alter table PrescribedMedicine add constraint FK_PrescibedMedicinesDoctors foreign key(idDoctor) references Doctors(id)
+
+
+insert into Diseases(name) values('Disease1'),('Disease2'),('Disease3')
+
+select * from Diseases
+insert into Diseases(name) values('Disease1'),('Disease2'),('Disease3')
+select * from Diseases
+insert into Doctors (LastName,Address) values('LastName','5 Avenue'),('LastName','7 Avenue'),('LastName','15 Avenue') 
+select * from Doctors
+
+use Hospital
+insert into Patients (LastName, FirstName, MiddleName, Address, Characteristics) values ('LastName1', 'FirstName1', 'MiddleName1', 'Address1', 'Characteristics1'),('LastName2', 'FirstName2', 'MiddleName2', 'Address2', 'Characteristics2'),('LastName3', 'FirstName3', 'MiddleName3', 'Address3', 'Characteristics3')
+select * from Patients
+insert into Contraindication (Name) values ('Contraindication1'), ('Contraindication2'), ('Contraindication3')
+select * from Contraindication
+insert into ContraindicationPatients (idPatient,idContraindication) values (1,2),(2,1)
+select * from ContraindicationPatients
+insert into ContraindicationMedicines(idMedicines,idContraindication) values (1,2),(2,1)
+select * from ContraindicationMedicines
+insert into Medicines(MedicineName, idRoot) values ('MedicineName1',null),('MedicineName2',null),('MedicineName3',null)
+select * from Medicines
+insert into MedicalHistory (idPatient,idDoctor, idDisease,StartDate,EndDate,Diagnosis) values (1,1,1,'2024-03-12','2024-03-19','Diagnosis1'),(2,2,1,'2024-03-02','2024-03-17','Diagnosis2')
+select * from MedicalHistory
+insert into PrescribedMedicine(idDoctor,idMedicine,idPatient,PrescriptionDate) values (1,1,1,'2024-03-12'),(2,1,2,'2024-03-10')
+select * from PrescribedMedicine

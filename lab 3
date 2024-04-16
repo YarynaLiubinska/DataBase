@@ -1,0 +1,76 @@
+ALTER TABLE MedicalHistory 
+ADD Effectiveness DECIMAL(5, 2),
+    ContraindicationCount INT;
+	
+
+
+-- Оновлення поля Effectiveness для усіх записів MedicalHistory
+UPDATE MedicalHistory
+SET Effectiveness = 5
+WHERE Diagnosis = 'Diagnosis1';
+
+-- Оновлення поля ContraindicationCount для певних записів MedicalHistory
+UPDATE MedicalHistory
+SET ContraindicationCount = 2
+WHERE StartDate > '2023-03-12';
+
+-- Оновлення поля Effectiveness для усіх записів MedicalHistory
+UPDATE MedicalHistory
+SET Effectiveness = 3
+WHERE Diagnosis = 'Diagnosis2';
+
+-- Оновлення поля ContraindicationCount для певних записів MedicalHistory
+UPDATE MedicalHistory
+SET ContraindicationCount = 2
+WHERE StartDate > '2023-03-02';
+SELECT * FROM MedicalHistory
+SELECT * FROM Doctors
+SELECT * FROM Contraindication
+
+
+CREATE OR ALTER PROCEDURE calculate_doctor_rating 
+    @doctorId INT
+AS
+BEGIN
+    DECLARE @rating FLOAT;
+
+    -- Отримання кількості пацієнтів, тривалості лікування, ефективності та кількості протипоказів для даного лікаря
+    SELECT 
+        @rating = (
+            SELECT 
+                (COUNT(*) * AVG(DATEDIFF(day, StartDate, EndDate))) / (1 + AVG(Effectiveness) + SUM(ContraindicationCount))
+            FROM MedicalHistory
+            WHERE idDoctor = @doctorId
+        );
+
+    -- Оновлення рейтингу для даного лікаря
+    UPDATE Doctors
+    SET Rating = @rating
+    WHERE id = @doctorId;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE update_doctor_ratings 
+AS
+BEGIN
+    -- Отримання списку усіх лікарів
+    DECLARE @doctorId INT;
+    DECLARE doctor_cursor CURSOR FOR
+        SELECT id FROM Doctors;
+
+    OPEN doctor_cursor;
+    FETCH NEXT FROM doctor_cursor INTO @doctorId;
+
+    -- Виклик функції calculate_doctor_rating для кожного лікаря
+    WHILE @@FETCH_STATUS = 0
+    BEGIN
+        EXEC calculate_doctor_rating @doctorId;
+
+        FETCH NEXT FROM doctor_cursor INTO @doctorId;
+    END;
+
+    CLOSE doctor_cursor;
+    DEALLOCATE doctor_cursor;
+END;
+GO
+EXEC update_doctor_ratings;

@@ -1,0 +1,59 @@
+UPDATE Patients
+SET Address = 'Нова адреса'
+WHERE id = 3
+SELECT * FROM Patients;
+DELETE FROM Patients
+WHERE LastName = 'LastName3';
+SELECT * FROM Patients;
+SELECT * FROM MedicalHistory;
+SELECT * 
+FROM Patients 
+WHERE id IN (SELECT idPatient FROM MedicalHistory WHERE Diagnosis = 'Disease2');
+insert into Patients (LastName, FirstName, MiddleName, Address, Characteristics) values ('LastName1', 'FirstName1', 'MiddleName1', 'Address1', 'Characteristics1'),('LastName2', 'FirstName2', 'MiddleName2', 'Address2', 'Characteristics2'),('LastName3', 'FirstName3', 'MiddleName3', 'Address3', 'Characteristics3')
+select * from Patients
+SELECT p.Address, COUNT(*) AS Patient_Count
+FROM Patients p
+GROUP BY Address
+SELECT 
+    d.LastName AS Doctor_LastName,
+    COUNT(CASE WHEN mh.idDoctor = d.id THEN 1 END) AS Patient_Count
+FROM 
+    Doctors d
+LEFT JOIN 
+    MedicalHistory mh ON d.id = mh.idDoctor
+GROUP BY 
+    d.id, d.LastName;
+insert into MedicalHistory (idPatient,idDoctor, idDisease,StartDate,EndDate,Diagnosis) values (1,1,1,'2024-03-12','2024-03-19','Diagnosis1'),(2,2,1,'2024-03-02','2024-03-17','Diagnosis2')
+select * from Patients
+UPDATE MedicalHistory
+SET idPatient = (SELECT id FROM Patients WHERE LastName = 'LastName2')
+WHERE idPatient = (SELECT id FROM Patients WHERE LastName = 'LastName3');
+INSERT INTO Patients (LastName, FirstName, Address)
+VALUES ('Нове прізвище', 'Нове ім"я', 'Вулиця нова, будинок 10');
+select * from Patients
+INSERT INTO Patients (LastName, FirstName, Address)
+SELECT DISTINCT p.LastName, p.FirstName, 'Невідома адреса'
+FROM MedicalHistory m
+JOIN Patients p ON m.idPatient = p.id;
+SELECT * FROM Patients WHERE LastName LIKE 'Но%';
+SELECT * FROM MedicalHistory WHERE StartDate BETWEEN '2024-01-01' AND '2024-03-10';
+SELECT * FROM Diseases WHERE id IN (1, 2, 3);
+SELECT * FROM Patients p WHERE EXISTS (SELECT * FROM MedicalHistory mh WHERE p.id = mh.idPatient);
+SELECT * FROM Patients WHERE id <= ALL (SELECT idPatient FROM MedicalHistory);
+SELECT * FROM MedicalHistory WHERE idPatient = ANY (SELECT id FROM Patients WHERE LastName = 'LastName1');
+SELECT mh.*
+FROM (SELECT id FROM Patients WHERE Address LIKE '%Address1%') AS p
+JOIN MedicalHistory mh ON p.id = mh.idPatient;
+SELECT p.LastName, p.FirstName, d.LastName AS Doctor_LastName, d.Address AS Doctor_Address
+FROM Patients p
+JOIN MedicalHistory mh ON p.id = mh.idPatient
+JOIN Doctors d ON mh.idDoctor = d.id
+JOIN Diseases ds ON mh.idDisease = ds.id
+WHERE (ds.name = 'Disease1' OR ds.name = 'Disease2')
+  AND p.Address LIKE '%Address1%'
+ORDER BY p.LastName;
+
+
+
+
+
